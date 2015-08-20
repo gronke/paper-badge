@@ -28,7 +28,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     margin: 0;
     padding: 0;
   }
-  #target {
+  #target, .target {
     width: 100px;
     height: 20px;
     background-color: red;
@@ -67,6 +67,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <test-fixture id="custom">
     <template>
       <test-button></test-button>
+    </template>
+  </test-fixture>
+
+  <test-fixture id="created">
+    <template>
+      <div>
+        <div id="target">Target</div>
+      </div>
     </template>
   </test-fixture>
 
@@ -171,6 +179,43 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           done();
         });
+      });
+
+      suite('badge is created dynamicly', function() {
+
+        test('label is set properly', function(done) {
+          var dynamicBadge, testValue = '123';
+
+          dynamicBadge = document.createElement('paper-badge');
+          dynamicBadge.setAttribute('label', testValue);
+
+          expect(dynamicBadge.querySelector('#badge').innerText).to.be.equal(testValue);
+          done();
+        });
+
+        test('badge is not visible until positioned', function(done) {
+          
+          var dynamicBadge, f, target;
+
+          f = fixture('created');
+          dynamicBadge = document.createElement('paper-badge');
+          dynamicBadge.setAttribute('label', 1);
+          target = f.querySelector('#target');
+          target.appendChild(dynamicBadge);
+
+          expect(window.getComputedStyle(dynamicBadge.querySelector('#badge')).visibility).to.be.equal('hidden');
+          expect(dynamicBadge.getBoundingClientRect().left).to.be.equal(0);
+
+          dynamicBadge.updatePosition();
+
+          Polymer.Base.async(function() {
+            expect(window.getComputedStyle(dynamicBadge.querySelector('#badge')).visibility).to.be.equal('visible');
+            expect(dynamicBadge.getBoundingClientRect().left).to.be.equal(100 - 11);
+            done();
+          });
+
+        });
+
       });
 
       suite('badge is inside a custom element', function() {
